@@ -523,12 +523,7 @@ function New-BaselineArchive {
 function Start-WindowsBaseline {
     # Display banner
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║            Windows System Baseline Script           ║" -ForegroundColor Cyan
-    Write-Host "║                                                      ║" -ForegroundColor Cyan
-    Write-Host "║  Collects comprehensive system information for      ║" -ForegroundColor Cyan
-    Write-Host "║  baseline documentation and analysis                ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "====Windows System Baseline Script===="
     Write-Host ""
     
     # Check privileges
