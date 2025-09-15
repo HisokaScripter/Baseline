@@ -1,7 +1,7 @@
 # Windows System Baseline Script
 # Purpose: Collect comprehensive system information for baseline documentation
-# Author: System Administrator
-# Date: Get-Date
+# Author: lhakpa.t.sherpa005@gmail.com
+# Date: 09/15/2025
 # Requirements: PowerShell 5.0+ and Administrator privileges recommended
 
 param(
@@ -15,14 +15,11 @@ param(
     [switch]$IncludeSensitive = $false
 )
 
-# Set error action preference
 $ErrorActionPreference = "Continue"
 
-# Initialize variables
 $script:LogFile = ""
 $script:IsAdmin = $false
 
-# Function to write colored output
 function Write-ColorOutput {
     param(
         [string]$Message,
@@ -33,7 +30,6 @@ function Write-ColorOutput {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "[$timestamp] [$Type] $Message"
     
-    # Color mapping
     $colorMap = @{
         "INFO" = "Green"
         "WARNING" = "Yellow"
@@ -47,20 +43,17 @@ function Write-ColorOutput {
         Write-Host $logMessage -ForegroundColor $Color
     }
     
-    # Log to file if available
     if ($script:LogFile -and (Test-Path (Split-Path $script:LogFile -Parent))) {
         Add-Content -Path $script:LogFile -Value $logMessage
     }
 }
 
-# Function to check administrator privileges
 function Test-AdminPrivileges {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Function to run command and capture output
 function Invoke-BaselineCommand {
     param(
         [string]$Command,
@@ -106,7 +99,6 @@ function Invoke-BaselineCommand {
     Add-Content -Path $OutputFile -Value ""
 }
 
-# Function to collect system information
 function Get-SystemInformation {
     Write-ColorOutput "=== SYSTEM INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "01_System_Information.txt"
@@ -136,7 +128,6 @@ function Get-SystemInformation {
     }
 }
 
-# Function to collect hardware information
 function Get-HardwareInformation {
     Write-ColorOutput "=== HARDWARE INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "02_Hardware_Information.txt"
@@ -166,7 +157,6 @@ function Get-HardwareInformation {
     }
 }
 
-# Function to collect network information
 function Get-NetworkInformation {
     Write-ColorOutput "=== NETWORK INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "03_Network_Information.txt"
@@ -200,7 +190,6 @@ function Get-NetworkInformation {
     }
 }
 
-# Function to collect services and processes
 function Get-ServicesAndProcesses {
     Write-ColorOutput "=== SERVICES AND PROCESSES ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "04_Services_Processes.txt"
@@ -228,7 +217,6 @@ function Get-ServicesAndProcesses {
     }
 }
 
-# Function to collect user and group information
 function Get-UserAndGroupInformation {
     Write-ColorOutput "=== USER AND GROUP INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "05_Users_Groups.txt"
@@ -262,7 +250,6 @@ function Get-UserAndGroupInformation {
     }
 }
 
-# Function to collect security information
 function Get-SecurityInformation {
     Write-ColorOutput "=== SECURITY INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "06_Security_Information.txt"
@@ -309,7 +296,6 @@ function Get-SecurityInformation {
     }
 }
 
-# Function to collect software information
 function Get-SoftwareInformation {
     Write-ColorOutput "=== SOFTWARE INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "07_Software_Information.txt"
@@ -344,7 +330,6 @@ function Get-SoftwareInformation {
     Invoke-BaselineCommand -Command "dism /online /get-features /format:table" -OutputFile $outputFile -Description "DISM Features"
 }
 
-# Function to collect environment and registry information
 function Get-EnvironmentInformation {
     Write-ColorOutput "=== ENVIRONMENT AND REGISTRY ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "08_Environment_Registry.txt"
@@ -370,7 +355,6 @@ function Get-EnvironmentInformation {
     Invoke-BaselineCommand -Command "reg query HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -OutputFile $outputFile -Description "Registry Run Keys (HKCU)"
 }
 
-# Function to collect event logs
 function Get-EventLogInformation {
     Write-ColorOutput "=== EVENT LOGS ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "09_Event_Logs.txt"
@@ -400,7 +384,6 @@ function Get-EventLogInformation {
     Invoke-BaselineCommand -Command "wevtutil el" -OutputFile $outputFile -Description "Windows Event Logs List"
 }
 
-# Function to collect performance information
 function Get-PerformanceInformation {
     Write-ColorOutput "=== PERFORMANCE INFORMATION ===" -Type "SECTION"
     $outputFile = Join-Path $OutputPath "10_Performance_Information.txt"
@@ -426,7 +409,6 @@ function Get-PerformanceInformation {
     Invoke-BaselineCommand -Command "wmic cpu get loadpercentage /value" -OutputFile $outputFile -Description "CPU Load Percentage"
 }
 
-# Function to generate summary report
 function New-SummaryReport {
     Write-ColorOutput "=== GENERATING SUMMARY REPORT ===" -Type "SECTION"
     $summaryFile = Join-Path $OutputPath "00_SUMMARY.txt"
@@ -471,7 +453,6 @@ SECURITY STATUS:
 FILES GENERATED:
 "@
 
-    # Add list of generated files
     Get-ChildItem $OutputPath -Filter "*.txt" | Sort-Object Name | ForEach-Object {
         $summary += "`n- $($_.Name)"
     }
@@ -499,7 +480,6 @@ RECOMMENDATIONS:
     Write-ColorOutput "Summary report created: $summaryFile" -Type "INFO"
 }
 
-# Function to create archive
 function New-BaselineArchive {
     if (-not $CreateArchive) { return }
     
@@ -519,14 +499,11 @@ function New-BaselineArchive {
     }
 }
 
-# Main execution function
 function Start-WindowsBaseline {
-    # Display banner
     Write-Host ""
     Write-Host "====Windows System Baseline Script===="
     Write-Host ""
     
-    # Check privileges
     $script:IsAdmin = Test-AdminPrivileges
     if ($script:IsAdmin) {
         Write-ColorOutput "Running with Administrator privileges - full access available" -Type "INFO"
@@ -535,7 +512,6 @@ function Start-WindowsBaseline {
         Write-ColorOutput "For complete baseline, run as Administrator" -Type "WARNING"
     }
     
-    # Create output directory
     try {
         if (-not (Test-Path $OutputPath)) {
             New-Item -Path $OutputPath -ItemType Directory -Force | Out-Null
@@ -547,11 +523,9 @@ function Start-WindowsBaseline {
         return
     }
     
-    # Initialize log file
     $script:LogFile = Join-Path $OutputPath "baseline.log"
     Write-ColorOutput "Baseline collection started: $(Get-Date)" -Type "INFO"
     
-    # Collect all information
     try {
         Get-SystemInformation
         Get-HardwareInformation
@@ -564,7 +538,6 @@ function Start-WindowsBaseline {
         Get-EventLogInformation
         Get-PerformanceInformation
         
-        # Generate summary and archive
         New-SummaryReport
         New-BaselineArchive
         
@@ -585,5 +558,4 @@ function Start-WindowsBaseline {
     }
 }
 
-# Execute main function
 Start-WindowsBaseline
